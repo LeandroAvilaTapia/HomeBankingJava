@@ -1,11 +1,15 @@
 package com.mindhub.homebankingAP;
 
+import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
+import com.mindhub.homebankingAP.repositories.AccountRepository;
 import com.mindhub.homebankingAP.repositories.ClientRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import java.time.LocalDate;
 
 @SpringBootApplication
 public class HomebankingApApplication {
@@ -15,10 +19,23 @@ public class HomebankingApApplication {
 	}
 
 	@Bean
-	public CommandLineRunner initData(ClientRepository clientRepository){
+	public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository){
 		return (args -> {
-			clientRepository.save(new Client("Melba","Morel","melba@mindhub.com"));
-			clientRepository.save(new Client("Leandro","Avila","leandroavila@mindhub.com"));
+			Client client1 = clientRepository.save(new Client("Melba","Morel","melba@mindhub.com"));
+			Client client2 = clientRepository.save(new Client("Leandro","Avila","leandroavila@mindhub.com"));
+
+			Account account1 = accountRepository.save(new Account("VIN001", LocalDate.now(),5000.00));
+			Account account2 = accountRepository.save(new Account("VIN002", LocalDate.now().plusDays(1),7500.00));
+			Account account3 = accountRepository.save(new Account("VIN003", LocalDate.now().plusDays(2),17500.00));
+
+			client1.setAccounts(account1);
+			client1.setAccounts(account2);
+			client2.setAccounts(account3);
+
+			account1.setAccounts(client1);
+			account2.setAccounts(client1);
+			account3.setAccounts(client2);
+
 		});
 	}
 }
