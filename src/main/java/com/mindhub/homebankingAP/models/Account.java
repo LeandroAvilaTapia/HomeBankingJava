@@ -18,15 +18,8 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="accounts_id")
-    private Client accounts;
+    private Client associatedAccounts;
 
-    public Client getAccounts() {
-        return accounts;
-    }
-
-    public void setAccounts(Client accounts) {
-        this.accounts = accounts;
-    }
 
     public Account (){}
 
@@ -58,5 +51,13 @@ public class Account {
 
     public void setBalance(Double balance) {
         this.balance = balance;
+    }
+
+    public Client getAccounts() {
+        return associatedAccounts;
+    }
+
+    public void setAccounts(Client accounts) {
+        this.associatedAccounts = accounts;
     }
 }

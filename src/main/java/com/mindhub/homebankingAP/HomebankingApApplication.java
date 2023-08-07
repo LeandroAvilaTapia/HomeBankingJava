@@ -28,13 +28,21 @@ public class HomebankingApApplication {
 			Account account2 = accountRepository.save(new Account("VIN002", LocalDate.now().plusDays(1),7500.00));
 			Account account3 = accountRepository.save(new Account("VIN003", LocalDate.now().plusDays(2),17500.00));
 
-			client1.setAccounts(account1);
-			client1.setAccounts(account2);
-			client2.setAccounts(account3);
+			client1.addAccounts(account1);
+			client1.addAccounts(account2);
+			client2.addAccounts(account3);
 
 			account1.setAccounts(client1);
 			account2.setAccounts(client1);
 			account3.setAccounts(client2);
+
+			clientRepository.save(client1);
+			clientRepository.save(client2);
+			accountRepository.save(account1);
+			accountRepository.save(account2);
+			accountRepository.save(account3);
+
+
 
 		});
 	}
