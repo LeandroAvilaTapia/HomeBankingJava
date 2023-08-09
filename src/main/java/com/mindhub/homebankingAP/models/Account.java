@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Account {
@@ -20,6 +22,8 @@ public class Account {
     @JoinColumn(name="accounts_id")
     private Client client;
 
+    @OneToMany(mappedBy="account", fetch=FetchType.EAGER)
+    Set<Transaction> transactions = new HashSet<>();
 
     public Account (){}
 
@@ -27,6 +31,15 @@ public class Account {
         this.number = number;
         this.creationDate = creationDate;
         this.balance = balance;
+    }
+
+    public Set<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void addTransactions(Transaction transaction) {
+        transaction.setTransactions(this);
+        transactions.add(transaction);
     }
 
     public String getNumber() {
@@ -59,4 +72,6 @@ public class Account {
     public Client getAccounts() { return client; }
 
     public void setAccounts(Client accounts) { this.client = accounts; }
+
+
 }

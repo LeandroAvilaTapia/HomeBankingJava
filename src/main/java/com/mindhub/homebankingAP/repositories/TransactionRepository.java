@@ -1,10 +1,10 @@
 package com.mindhub.homebankingAP.repositories;
 
-import com.mindhub.homebankingAP.models.Client;
+import com.mindhub.homebankingAP.models.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource
-public interface ClientRepository extends JpaRepository<Client, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
 }
