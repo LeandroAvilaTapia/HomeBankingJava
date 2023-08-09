@@ -1,6 +1,6 @@
 package com.mindhub.homebankingAP.dtos;
 
-import com.mindhub.homebankingAP.models.Account;
+
 import com.mindhub.homebankingAP.models.Client;
 
 import java.util.Set;
@@ -11,20 +11,14 @@ public class ClientDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private Set <AccountDTO> accounts;
+    private Set<AccountDTO> accounts;
+
     public ClientDTO(Client client) {
-
         this.id = client.getId();
-
         this.firstName = client.getFirstName();
-
         this.lastName = client.getLastName();
-
         this.email = client.getEmail();
-
         this.accounts = client.getAccounts().stream().map(AccountDTO::new).collect(Collectors.toSet());
-
-
     }
 
     public long getId() {

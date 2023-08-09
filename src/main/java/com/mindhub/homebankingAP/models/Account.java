@@ -3,6 +3,7 @@ package com.mindhub.homebankingAP.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -19,13 +20,14 @@ public class Account {
     private Double balance;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="accounts_id")
+    @JoinColumn(name = "accounts_id")
     private Client client;
 
-    @OneToMany(mappedBy="account", fetch=FetchType.EAGER)
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     Set<Transaction> transactions = new HashSet<>();
 
-    public Account (){}
+    public Account() {
+    }
 
     public Account(String number, LocalDate creationDate, Double balance) {
         this.number = number;
@@ -37,26 +39,29 @@ public class Account {
         return transactions;
     }
 
-    public void addTransactions(Transaction transaction) {
-        transaction.setTransactions(this);
-        transactions.add(transaction);
-    }
 
     public String getNumber() {
         return number;
     }
-    public long getId() { return id; }
+
+    public long getId() {
+        return id;
+    }
+
     public void setNumber(String number) {
         this.number = number;
     }
+
 
     public LocalDate getCreationDate() {
         return creationDate;
     }
 
+
     public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
+
 
     public Double getBalance() {
         return balance;
@@ -67,11 +72,21 @@ public class Account {
     }
 
     @JsonIgnore
-    public Client getClient() { return client; }
+    public Client getClient() {
+        return client;
+    }
 
-    public Client getAccounts() { return client; }
+    public Client getAccounts() {
+        return client;
+    }
 
-    public void setAccounts(Client accounts) { this.client = accounts; }
+    public void setAccounts(Client accounts) {
+        this.client = accounts;
+    }
 
+    public void addTransactions(Transaction transaction) {
+        transaction.setTransactions(this);
+        transactions.add(transaction);
+    }
 
 }

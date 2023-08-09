@@ -18,40 +18,45 @@ import java.time.LocalDateTime;
 @SpringBootApplication
 public class HomebankingApApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HomebankingApApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(HomebankingApApplication.class, args);
+    }
 
-	@Bean
-	public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository){
-		return (args -> {
-			Client client1 = clientRepository.save(new Client("Melba","Morel","melba@mindhub.com"));
-			Client client2 = clientRepository.save(new Client("Leandro","Avila","leandroavila@mindhub.com"));
+    @Bean
+    public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository) {
+        return (args -> {
+            Client client1 = clientRepository.save(new Client("Melba", "Morel", "melba@mindhub.com"));
+            Client client2 = clientRepository.save(new Client("Leandro", "Avila", "leandroavila@mindhub.com"));
 
-			Account account1 = accountRepository.save(new Account("VIN001", LocalDate.now(),5000.00));
-			Account account2 = accountRepository.save(new Account("VIN002", LocalDate.now().plusDays(1),7500.00));
-			Account account3 = accountRepository.save(new Account("VIN003", LocalDate.now().plusDays(2),17500.00));
+            Account account1 = accountRepository.save(new Account("VIN001", LocalDate.now(), 5000.00));
+            Account account2 = accountRepository.save(new Account("VIN002", LocalDate.now().plusDays(1), 7500.00));
+            Account account3 = accountRepository.save(new Account("VIN003", LocalDate.now().plusDays(2), 17500.00));
 
-			Transaction transaction1 = transactionRepository.save(new Transaction(TransactionType.CREDIT,2400.00,"De prueba", LocalDateTime.now()));
+            Transaction transaction1 = transactionRepository.save(new Transaction(TransactionType.CREDIT, 2400.00, "De prueba", LocalDateTime.now()));
+            Transaction transaction2 = transactionRepository.save(new Transaction(TransactionType.DEBIT, -5400.00, "Factura de luz", LocalDateTime.now()));
+            client1.addAccounts(account1);
+            client1.addAccounts(account2);
+            client2.addAccounts(account3);
 
-			client1.addAccounts(account1);
-			client1.addAccounts(account2);
-			client2.addAccounts(account3);
+            account1.setAccounts(client1);
+            account2.setAccounts(client1);
+            account3.setAccounts(client2);
 
-			account1.setAccounts(client1);
-			account2.setAccounts(client1);
-			account3.setAccounts(client2);
+            account1.addTransactions(transaction1);
+            transaction1.setTransactions(account1);
 
-			account1.addTransactions(transaction1);
+            account2.addTransactions(transaction2);
+            transaction2.setTransactions(account2);
 
-			clientRepository.save(client1);
-			clientRepository.save(client2);
-			accountRepository.save(account1);
-			accountRepository.save(account2);
-			accountRepository.save(account3);
+            clientRepository.save(client1);
+            clientRepository.save(client2);
+            accountRepository.save(account1);
+            accountRepository.save(account2);
+            accountRepository.save(account3);
+            transactionRepository.save(transaction1);
+            transactionRepository.save(transaction2);
 
 
-
-		});
-	}
+        });
+    }
 }
