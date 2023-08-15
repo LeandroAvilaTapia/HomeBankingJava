@@ -19,7 +19,7 @@ public class HomebankingApApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository, LoanRepository loanRepository, ClientLoanRepository clientLoanRepository) {
+    public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository, LoanRepository loanRepository, ClientLoanRepository clientLoanRepository, CardRepository cardRepository) {
         return (args -> {
             Client client1 = clientRepository.save(new Client("Melba", "Morel", "melba@mindhub.com"));
             Client client2 = clientRepository.save(new Client("Leandro", "Avila", "leandroavila@mindhub.com"));
@@ -40,6 +40,10 @@ public class HomebankingApApplication {
             ClientLoan cloan3 = clientLoanRepository.save(new ClientLoan(client2, loan2, 100000.0, 24));
             ClientLoan cloan4 = clientLoanRepository.save(new ClientLoan(client2, loan3, 200000.0, 36));
 
+            Card card1 = cardRepository.save(new Card(client1.getFirstName() + client1.getLastName(), CardType.DEBIT, CardColor.GOLD, "5555-5555-5555-5555", (short) 541, LocalDate.now(), LocalDate.now().plusYears(5)));
+            Card card2 = cardRepository.save(new Card(client1.getFirstName() + client1.getLastName(), CardType.CREDIT, CardColor.TITANIUM, "5532-6355-5885-5321", (short) 879, LocalDate.now(), LocalDate.now().plusYears(5)));
+            Card card3 = cardRepository.save(new Card(client2.getFirstName() + client2.getLastName(), CardType.CREDIT, CardColor.SILVER, "1324-5465-8524-9463", (short) 456, LocalDate.now(), LocalDate.now().plusYears(5)));
+
 
             client1.addAccounts(account1);
             client1.addAccounts(account2);
@@ -55,6 +59,10 @@ public class HomebankingApApplication {
             account2.addTransactions(transaction2);
             transaction2.setTransactions(account2);
 
+            client1.addCards(card1);
+            client1.addCards(card2);
+            client2.addCards(card3);
+
             clientRepository.save(client1);
             clientRepository.save(client2);
             accountRepository.save(account1);
@@ -67,6 +75,10 @@ public class HomebankingApApplication {
             clientLoanRepository.save(cloan2);
             clientLoanRepository.save(cloan3);
             clientLoanRepository.save(cloan4);
+
+            cardRepository.save(card1);
+            cardRepository.save(card2);
+            cardRepository.save(card3);
 
 
         });
