@@ -1,9 +1,12 @@
 package com.mindhub.homebankingAP.configurations;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
@@ -13,31 +16,34 @@ import javax.servlet.http.HttpSession;
 
 @EnableWebSecurity
 @Configuration
-class WebAuthorization extends WebSecurityConfigurerAdapter {
+class WebAuthorization {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
+                .antMatchers("/web/index.html", "/web/css/**", "/web/img/**", "/web/js/index.js").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/login", "/api/logout", "/api/clients").permitAll()
+                .antMatchers("/web/index.html").permitAll()
 
-                .antMatchers("/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/rest/**", "/h2-console/**").hasAuthority("ADMIN")
 
-                .antMatchers("/clients/**").hasAuthority("USER");
+                .antMatchers("/web/**", "/api/**").hasAuthority("CLIENT");
 
 
         http.formLogin()
-                .loginPage("/app/login")
-                .usernameParameter("name")
-                .passwordParameter("pwd");
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .loginPage("/api/login");
 
-        http.logout().logoutUrl("/app/logout");
+        http.logout().logoutUrl("/api/logout");
 
         http.csrf().disable();
 
 
         //disabling frameOptions so h2-console can be accessed
 
-        //httpSecurity.headers().frameOptions().disable();
+        http.headers().frameOptions().disable();
 
         // if user is not authenticated, just send an authentication failure response
 
@@ -54,6 +60,8 @@ class WebAuthorization extends WebSecurityConfigurerAdapter {
         // if logout is successful, just send a success response
 
         http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+
+        return http.build();
 
     }
 

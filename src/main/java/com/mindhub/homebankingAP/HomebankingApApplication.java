@@ -28,6 +28,7 @@ public class HomebankingApApplication {
         return (args -> {
             Client client1 = clientRepository.save(new Client("Melba", "Morel", "melba@mindhub.com", passwordEnconder.encode("melba")));
             Client client2 = clientRepository.save(new Client("Leandro", "Avila", "leandroavila@mindhub.com",passwordEnconder.encode("leandro")));
+            Client client3 = clientRepository.save(new Client("Leandro", "Tapia", "admin@mindhub.com",passwordEnconder.encode("admin")));
 
             Account account1 = accountRepository.save(new Account("VIN001", LocalDate.now(), 5000.00));
             Account account2 = accountRepository.save(new Account("VIN002", LocalDate.now().plusDays(1), 7500.00));
