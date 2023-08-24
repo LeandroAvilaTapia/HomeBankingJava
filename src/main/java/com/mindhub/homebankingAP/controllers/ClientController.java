@@ -56,8 +56,21 @@ public class ClientController {
             return new ResponseEntity<>("Email already in use", HttpStatus.FORBIDDEN);
 
         }
-        clientRepository.save(new Client(firstName, lastName, email, passwordEncoder.encode(password)));
+
+        Client currentClient = clientRepository.save(new Client(firstName, lastName, email, passwordEncoder.encode(password)));
+
+        //Asumo que a crear un nuevo cliente, este no tiene cuentas asociadas
+        Account newAccount = accountRepository.save(new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0));
+
+        // Associate the account with the client
+        currentClient.addAccounts(newAccount);
+        newAccount.setAccounts(currentClient);
+
+        clientRepository.save(currentClient);
+        accountRepository.save(newAccount);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
+
     }
 
     @RequestMapping("/clients/current")
@@ -67,7 +80,6 @@ public class ClientController {
 
     @RequestMapping(path = "/clients/current/accounts", method = RequestMethod.POST)
     public ResponseEntity<String> createAccountForCurrentClient(Authentication authentication) {
-
 
         // Get the current client
         ClientDTO currentClientDTO = getCurrentClient(authentication);
