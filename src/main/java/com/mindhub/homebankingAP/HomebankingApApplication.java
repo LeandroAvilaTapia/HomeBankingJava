@@ -30,9 +30,9 @@ public class HomebankingApApplication {
             Client client2 = clientRepository.save(new Client("Leandro", "Avila", "leandroavila@mindhub.com",passwordEnconder.encode("leandro")));
             Client client3 = clientRepository.save(new Client("Leandro", "Tapia", "admin@mindhub.com",passwordEnconder.encode("admin")));
 
-            Account account1 = accountRepository.save(new Account("VIN001", LocalDate.now(), 5000.00));
-            Account account2 = accountRepository.save(new Account("VIN002", LocalDate.now().plusDays(1), 7500.00));
-            Account account3 = accountRepository.save(new Account("VIN003", LocalDate.now().plusDays(2), 17500.00));
+            Account account1 = accountRepository.save(new Account("VIN-000001", LocalDate.now(), 5000.00));
+            Account account2 = accountRepository.save(new Account("VIN-000002", LocalDate.now().plusDays(1), 7500.00));
+            Account account3 = accountRepository.save(new Account("VIN-000003", LocalDate.now().plusDays(2), 17500.00));
 
             Transaction transaction1 = transactionRepository.save(new Transaction(TransactionType.CREDIT, 2400.00, "De prueba", LocalDateTime.now()));
             Transaction transaction2 = transactionRepository.save(new Transaction(TransactionType.DEBIT, -5400.00, "Factura de luz", LocalDateTime.now()));

@@ -59,7 +59,7 @@ public class ClientController {
 
         Client currentClient = clientRepository.save(new Client(firstName, lastName, email, passwordEncoder.encode(password)));
 
-        //Asumo que a crear un nuevo cliente, este no tiene cuentas asociadas
+        //Asumo que al crear un nuevo cliente, este no tiene cuentas asociadas
         Account newAccount = accountRepository.save(new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0));
 
         // Associate the account with the client
@@ -90,42 +90,50 @@ public class ClientController {
 
         Client currentClient = clientRepository.findByEmail(currentClientDTO.getEmail());
 
-        boolean verificacionDeCuenta = true;
-
-        // Check if the client already has 3 accounts
+        // Chequeo si el cliente ya tiene 3 cuentas creadas
         if (currentClient.getAccounts().size() >= 3) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has 3 accounts");
         }
 
-        // Create a new account
-        Account newAccount = accountRepository.save(new Account(generateUniqueAccountNumber(), LocalDate.now(),0.0));
-        do {
-            newAccount.setNumber(generateUniqueAccountNumber());
+        // Creo una cuenta nueva
+        Account newAccount = accountRepository.save(new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0));
 
-            if (isAccountNumberUnique(currentClient,newAccount.getNumber())){
-                verificacionDeCuenta=false;
-            }
-        } while (verificacionDeCuenta);
-
-        // Associate the account with the client
+        //Asocia la cuenta con el cliente
         currentClient.addAccounts(newAccount);
+        //Asocia el cliente con la cuenta
         newAccount.setAccounts(currentClient);
 
-        // Save the client and account in the repository
+        // Guardar el cliente y la cuenta en el repositorio
         clientRepository.save(currentClient);
         accountRepository.save(newAccount);
         return ResponseEntity.status(HttpStatus.CREATED).body("Account created successfully");
     }
 
-    private String generateUniqueAccountNumber() {
+    private String generateAccountNumber() {
         // Genera un número aleatorio entre 100000 y 999999
         int randomNumber = (int) (Math.random() * (999999 - 000001 + 1)) + 000001;
         return "VIN-" + randomNumber;
     }
-    private boolean isAccountNumberUnique(Client client, String accountNumber) {
-        //verifica si la cuenta *accountNumber esta en el *client.
-        //Retorna: si es un numero que no esta repetido devolverá thue, si está repetido devolverá false
-        return client.getAccounts().stream()
-                .noneMatch(account -> account.getNumber().equals(accountNumber));
+
+    private boolean isAccountNumberUnique(String accountNumber) {
+        //verifica si la cuenta *accountNumber esta repetida en la tabla Account.
+        //Retorna: si es un numero no esta repetido devolverá thue, si está repetido devolverá false
+        return accountRepository.findByNumber(accountNumber) == null;
+    }
+
+    private String generateUniqueAccountNumber() {
+        /*
+        Proposito: Crea un numero de cuenta unico.
+        retorna: un numero de cuenta unico en String
+        * */
+        boolean verificacionDeCuenta = true;
+        String numberAccount = generateAccountNumber();
+        do {
+            if (isAccountNumberUnique(numberAccount)) {
+                verificacionDeCuenta = false;
+            }
+        } while (verificacionDeCuenta);
+        return numberAccount;
+
     }
 }
