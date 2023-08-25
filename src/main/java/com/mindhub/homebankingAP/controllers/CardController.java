@@ -1,5 +1,6 @@
 package com.mindhub.homebankingAP.controllers;
 
+import com.mindhub.homebankingAP.dtos.CardDTO;
 import com.mindhub.homebankingAP.dtos.ClientDTO;
 import com.mindhub.homebankingAP.models.Card;
 import com.mindhub.homebankingAP.models.CardColor;
@@ -9,78 +10,89 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.mindhub.homebankingAP.repositories.ClientRepository;
 
 import com.mindhub.homebankingAP.repositories.CardRepository;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/clients/current")
+@RequestMapping("api")
 public class CardController {
 
+    @Autowired
+    private ClientController clientController;
     @Autowired
     private ClientRepository clientRepository;
     @Autowired
     private CardRepository cardRepository;
 
-    @Autowired
-    private ClientController clientController;
+    @RequestMapping("/cards")
+    public List<CardDTO> getAllCards() {
+        return cardRepository.findAll().stream().map(CardDTO::new).collect(Collectors.toList());
+    }
 
-    @PostMapping("cards")
-    public ResponseEntity<String> createCard(Authentication authentication,
-                                             @RequestParam CardColor color, @RequestParam CardType type) {
+    @RequestMapping("/clients/current/cards")
+    public List<CardDTO> getCurrentClientCards(Authentication authentication) {
+        return cardRepository.findByClient_email(authentication.getName()).stream().map(CardDTO::new).collect(Collectors.toList());
+    }
+
+    @RequestMapping(path = "/clients/current/cards", method = RequestMethod.POST)
+    public ResponseEntity<Object> createCard(@RequestParam String cardType, @RequestParam String cardColor, Authentication authentication) {
         ClientDTO currentClientDTO = clientController.getCurrentClient(authentication);
+        Client currentClient = clientRepository.findByEmail(authentication.getName());
+        //revisar si los datos del paramentros son nulos o incorrectos
+        if (cardType.isEmpty()) {
+            return new ResponseEntity<>("Missing data: card type is empty", HttpStatus.FORBIDDEN);
+        }
+        if (cardColor.isEmpty()) {
+            return new ResponseEntity<>("Missing data: card color is empty", HttpStatus.FORBIDDEN);
+        }
 
-        if (currentClientDTO == null) {
+        if (currentClient == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client not found");
         }
 
-        Client currentClient = clientRepository.findByEmail(currentClientDTO.getEmail());
-
-        // Check if the client already has 3 cards of the same type
-        long cardCount = currentClient.getCards().stream()
-                .filter(card -> card.getType() == type)
-                .count();
-
-        if (cardCount >= 3) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has 3 cards of this type and color");
+        if (!canClientCreateCard(currentClient, CardType.valueOf(cardType))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has 3 cards of this type");
         }
-
-        String cardNumber = generateUniqueCardNumber();
         String cardHolder = currentClient.getFirstName() + " " + currentClient.getLastName();
-        short cvv = generateRandomCVV();
-        LocalDate startDate = LocalDate.now();
-        LocalDate expirationDate = startDate.plusYears(5);
-        //Card(String cardHolder, CardType type, CardColor color, String number, short cvv, LocalDate thruDate, LocalDate fromDate)
-        //Card newCard = new Card(cardNumber, cardHolder, cvv, startDate, expirationDate, color, type, currentClient);
-        Card newCard = new Card(cardHolder, type, color, cardNumber,cvv,startDate,expirationDate);
-        cardRepository.save(newCard);
+        Card newCard = new Card(cardHolder, CardType.valueOf(cardType), CardColor.valueOf(cardColor), generateUniqueCardNumber(), generateRandomCVV(), LocalDate.now().plusYears(5), LocalDate.now());
+        //agrega la tarjeta al cliente
         currentClient.addCards(newCard);
+        //guarda la tarjeta en la tabla Card
+        cardRepository.save(newCard);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Card created successfully");
     }
 
+    private boolean canClientCreateCard(Client client, CardType type) {
+        long cardCount = client.getCards().stream()
+                .filter(card -> card.getType() == type)
+                .count();
+
+        return cardCount < 3;
+    }
 
     private String generateCardNumber() {
         // Genera un string aleatorio entre 0001 y 9999 con el formato xxxx-xxxx-xxxx-xxxx
         int randomNumber = (int) (Math.random() * (9999 - 0001 + 1)) + 0001;
         int randomNumber2 = (int) (Math.random() * (9999 - 0001 + 1)) + 0001;
-        int randomNumber3= (int) (Math.random() * (9999 - 0001 + 1)) + 0001;
+        int randomNumber3 = (int) (Math.random() * (9999 - 0001 + 1)) + 0001;
         int randomNumber4 = (int) (Math.random() * (9999 - 0001 + 1)) + 0001;
-        return randomNumber+"-"+randomNumber2+"-"+randomNumber3+"-"+randomNumber4;
+        return randomNumber + "-" + randomNumber2 + "-" + randomNumber3 + "-" + randomNumber4;
     }
-    private short generateRandomCVV(){
+
+    private short generateRandomCVV() {
         return (short) ((short) (Math.random() * (999 - 001 + 1)) + 001);
     }
 
     private boolean isAccountNumberUnique(String accountNumber) {
-        //verifica si la cuenta *accountNumber esta repetida en la tabla Account.
+        //verifica si el numero de la tajeta esta repetido o no
         //Retorna: si es un numero no esta repetido devolverá thue, si está repetido devolverá false
         return cardRepository.findByNumber(accountNumber) == null;
     }
@@ -91,7 +103,7 @@ public class CardController {
         retorna: un numero de cuenta unico en String
         * */
         boolean verificacionDeCuenta = true;
-        String numberCard= generateCardNumber();
+        String numberCard = generateCardNumber();
         do {
             if (isAccountNumberUnique(numberCard)) {
                 verificacionDeCuenta = false;

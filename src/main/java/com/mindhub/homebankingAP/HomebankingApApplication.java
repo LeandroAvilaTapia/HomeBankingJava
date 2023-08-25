@@ -46,9 +46,9 @@ public class HomebankingApApplication {
             ClientLoan cloan3 = clientLoanRepository.save(new ClientLoan(client2, loan2, 100000.0, 24));
             ClientLoan cloan4 = clientLoanRepository.save(new ClientLoan(client2, loan3, 200000.0, 36));
 
-            Card card1 = cardRepository.save(new Card(client1.getFirstName() + client1.getLastName(), CardType.DEBIT, CardColor.GOLD, "5555-5555-5555-5555", (short) 541, LocalDate.now(), LocalDate.now().plusYears(5)));
-            Card card2 = cardRepository.save(new Card(client1.getFirstName() + client1.getLastName(), CardType.CREDIT, CardColor.TITANIUM, "5532-6355-5885-5321", (short) 879, LocalDate.now(), LocalDate.now().plusYears(5)));
-            Card card3 = cardRepository.save(new Card(client2.getFirstName() + client2.getLastName(), CardType.CREDIT, CardColor.SILVER, "1324-5465-8524-9463", (short) 456, LocalDate.now(), LocalDate.now().plusYears(5)));
+            Card card1 = cardRepository.save(new Card(client1.getFirstName() + client1.getLastName(), CardType.DEBIT, CardColor.GOLD, "5555-5555-5555-5555", (short) 541, LocalDate.now().plusYears(5), LocalDate.now()));
+            Card card2 = cardRepository.save(new Card(client1.getFirstName() + client1.getLastName(), CardType.CREDIT, CardColor.TITANIUM, "5532-6355-5885-5321", (short) 879, LocalDate.now().plusYears(5), LocalDate.now()));
+            Card card3 = cardRepository.save(new Card(client2.getFirstName() + client2.getLastName(), CardType.CREDIT, CardColor.SILVER, "1324-5465-8524-9463", (short) 456, LocalDate.now().plusYears(5), LocalDate.now()));
 
 
             client1.addAccounts(account1);

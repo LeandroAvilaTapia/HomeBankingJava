@@ -22,13 +22,14 @@ class WebAuthorization {
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
+
                 .antMatchers("/web/index.html", "/web/css/**", "/web/img/**", "/web/js/index.js").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/login", "/api/logout", "/api/clients").permitAll()
                 .antMatchers("/web/index.html").permitAll()
 
                 .antMatchers("/rest/**", "/h2-console/**").hasAuthority("ADMIN")
 
-                .antMatchers("/web/**", "/api/**").hasAuthority("CLIENT");
+                .antMatchers("/web/**", "/api/**","/api/clients/current/cards", "/h2-console/**").hasAuthority("CLIENT");
 
 
         http.formLogin()
