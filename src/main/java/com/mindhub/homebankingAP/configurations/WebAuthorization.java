@@ -29,7 +29,8 @@ class WebAuthorization {
 
                 .antMatchers("/rest/**", "/h2-console/**").hasAuthority("ADMIN")
 
-                .antMatchers("/web/**", "/api/**","/api/clients/current/cards", "/h2-console/**").hasAuthority("CLIENT");
+                .antMatchers("/web/**", "/api/**","/api/clients/current/cards").hasAuthority("CLIENT")
+                .anyRequest().denyAll();
 
 
         http.formLogin()

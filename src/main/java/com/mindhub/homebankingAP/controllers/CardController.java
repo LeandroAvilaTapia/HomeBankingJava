@@ -43,7 +43,7 @@ public class CardController {
 
     @RequestMapping(path = "/clients/current/cards", method = RequestMethod.POST)
     public ResponseEntity<Object> createCard(@RequestParam String cardType, @RequestParam String cardColor, Authentication authentication) {
-        ClientDTO currentClientDTO = clientController.getCurrentClient(authentication);
+
         Client currentClient = clientRepository.findByEmail(authentication.getName());
         //revisar si los datos del paramentros son nulos o incorrectos
         if (cardType.isEmpty()) {
@@ -56,8 +56,12 @@ public class CardController {
         if (currentClient == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client not found");
         }
-
-        if (!canClientCreateCard(currentClient, CardType.valueOf(cardType))) {
+        // Verificar si el cliente ya tiene una tarjeta del mismo color y tipo
+        if (hasDuplicateCard(currentClient, CardColor.valueOf(cardColor), CardType.valueOf(cardType))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has a card with the same color and type");
+        }
+        // Verificar si el cliente ya tiene 3 tarjetas del mismo tipo
+        if (!canClientCreateCard(currentClient, CardType.valueOf(cardType),CardColor.valueOf(cardColor))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has 3 cards of this type");
         }
         String cardHolder = currentClient.getFirstName() + " " + currentClient.getLastName();
@@ -70,9 +74,9 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Card created successfully");
     }
 
-    private boolean canClientCreateCard(Client client, CardType type) {
+    private boolean canClientCreateCard(Client client, CardType type,CardColor color) {
         long cardCount = client.getCards().stream()
-                .filter(card -> card.getType() == type)
+                .filter(card -> card.getType() == type && card.getColor() == color)
                 .count();
 
         return cardCount < 3;
@@ -96,6 +100,12 @@ public class CardController {
         //Retorna: si es un numero no esta repetido devolverá thue, si está repetido devolverá false
         return cardRepository.findByNumber(accountNumber) == null;
     }
+
+    private boolean hasDuplicateCard(Client client, CardColor cardColor, CardType cardType) {
+        return client.getCards().stream()
+                .anyMatch(card -> card.getColor() == cardColor && card.getType() == cardType);
+    }
+
 
     private String generateUniqueCardNumber() {
         /*
