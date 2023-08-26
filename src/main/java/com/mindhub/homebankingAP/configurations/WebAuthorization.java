@@ -22,14 +22,26 @@ class WebAuthorization {
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-
+                // Permitir acceso público a recursos estáticos
                 .antMatchers("/web/index.html", "/web/css/**", "/web/img/**", "/web/js/index.js").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/login", "/api/logout", "/api/clients").permitAll()
                 .antMatchers("/web/index.html").permitAll()
 
+                // Permitir registro y autenticación para todos
+                .antMatchers(HttpMethod.POST, "/api/login", "/api/logout", "/api/clients").permitAll()
+
+                // Restringir acceso a rutas administrativas (ADMIN)
                 .antMatchers("/rest/**", "/h2-console/**").hasAuthority("ADMIN")
 
-                .antMatchers("/web/**", "/api/**","/api/clients/current/cards").hasAuthority("CLIENT")
+                // Restringir acceso a rutas de clientes (CLIENT)
+                .antMatchers("/web/**", "/api/**").hasAuthority("CLIENT")
+
+                // Permitir acceso a la información del cliente autenticado
+                .antMatchers("/api/clients/current/**").hasAuthority("CLIENT")
+
+                // Restringir acceso a crear cuentas y tarjetas para clientes (CLIENT)
+                .antMatchers(HttpMethod.POST, "/api/clients/current/accounts", "/api/clients/current/cards").hasAuthority("CLIENT")
+
+                // Denegar acceso a todos los demás endpoints
                 .anyRequest().denyAll();
 
 

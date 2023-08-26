@@ -61,7 +61,7 @@ public class CardController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has a card with the same color and type");
         }
         // Verificar si el cliente ya tiene 3 tarjetas del mismo tipo
-        if (!canClientCreateCard(currentClient, CardType.valueOf(cardType),CardColor.valueOf(cardColor))) {
+        if (!canClientCreateCard(currentClient, CardType.valueOf(cardType), CardColor.valueOf(cardColor))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has 3 cards of this type");
         }
         String cardHolder = currentClient.getFirstName() + " " + currentClient.getLastName();
@@ -74,7 +74,7 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Card created successfully");
     }
 
-    private boolean canClientCreateCard(Client client, CardType type,CardColor color) {
+    private boolean canClientCreateCard(Client client, CardType type, CardColor color) {
         long cardCount = client.getCards().stream()
                 .filter(card -> card.getType() == type && card.getColor() == color)
                 .count();

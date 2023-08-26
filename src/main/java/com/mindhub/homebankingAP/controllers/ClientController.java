@@ -18,7 +18,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/clients")
 public class ClientController {
 
     @Autowired
@@ -28,18 +28,17 @@ public class ClientController {
     @Autowired
     private AccountRepository accountRepository;
 
-    @RequestMapping("/clients")
+    @RequestMapping(method = RequestMethod.GET)
     public List<ClientDTO> getAll() {
         return clientRepository.findAll().stream().map(ClientDTO::new).collect(toList());
     }
 
-    @RequestMapping("clients/{id}")
-    public ClientDTO getAccount(@PathVariable Long id) {
+    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+    public ClientDTO getClient(@PathVariable Long id) {
         return clientRepository.findById(id).map(ClientDTO::new).orElse(null);
-
     }
 
-    @RequestMapping(path = "/clients", method = RequestMethod.POST)
+    @RequestMapping(path = "", method = RequestMethod.POST)
     public ResponseEntity<Object> register(@RequestParam String firstName, @RequestParam String lastName, @RequestParam String email, @RequestParam String password) {
         if (firstName.isEmpty()) {
             return new ResponseEntity<>("Missing firstname", HttpStatus.FORBIDDEN);
@@ -73,12 +72,12 @@ public class ClientController {
 
     }
 
-    @RequestMapping("/clients/current")
+    @RequestMapping(path = "/current", method = RequestMethod.GET)
     public ClientDTO getCurrentClient(Authentication authentication) {
         return new ClientDTO(clientRepository.findByEmail(authentication.getName()));
     }
 
-    @RequestMapping(path = "/clients/current/accounts", method = RequestMethod.POST)
+    @RequestMapping(path = "/current/accounts", method = RequestMethod.POST)
     public ResponseEntity<String> createAccountForCurrentClient(Authentication authentication) {
 
         // Get the current client
