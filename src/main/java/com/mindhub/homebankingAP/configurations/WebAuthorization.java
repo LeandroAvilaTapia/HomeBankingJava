@@ -33,10 +33,10 @@ class WebAuthorization {
                 .antMatchers("/rest/**", "/h2-console/**").hasAuthority("ADMIN")
 
                 // Restringir acceso a rutas de clientes (CLIENT)
-                .antMatchers("/web/**", "/api/**").hasAuthority("CLIENT")
+                //.antMatchers("/web/**", "/api/**").hasAuthority("CLIENT")
 
                 // Permitir acceso a la información del cliente autenticado
-                .antMatchers("/api/clients/current/**").hasAuthority("CLIENT")
+                .antMatchers("/web/**","/api/clients/current/**").hasAuthority("CLIENT")
 
                 // Restringir acceso a crear cuentas y tarjetas para clientes (CLIENT)
                 .antMatchers(HttpMethod.POST, "/api/clients/current/accounts", "/api/clients/current/cards").hasAuthority("CLIENT")
