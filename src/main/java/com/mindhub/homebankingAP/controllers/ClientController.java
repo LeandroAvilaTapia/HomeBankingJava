@@ -36,7 +36,6 @@ public class ClientController {
     @RequestMapping("clients/{id}")
     public ClientDTO getAccount(@PathVariable Long id) {
         return clientRepository.findById(id).map(ClientDTO::new).orElse(null);
-
     }
 
     @RequestMapping(path = "/clients", method = RequestMethod.POST)
