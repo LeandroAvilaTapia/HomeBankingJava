@@ -1,5 +1,6 @@
 package com.mindhub.homebankingAP.controllers;
 
+import com.mindhub.homebankingAP.dtos.AccountDTO;
 import com.mindhub.homebankingAP.dtos.ClientDTO;
 import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
@@ -13,7 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -106,6 +109,34 @@ public class ClientController {
         clientRepository.save(currentClient);
         accountRepository.save(newAccount);
         return ResponseEntity.status(HttpStatus.CREATED).body("Account created successfully");
+    }
+
+    @RequestMapping(path = "/current/accounts", method = RequestMethod.GET)
+    public ResponseEntity<List<AccountDTO>> getCurrentClientAccounts(Authentication authentication) {
+        String currentClientEmail = authentication.getName();
+        Client currentClient = clientRepository.findByEmail(currentClientEmail);
+
+        if (currentClient == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<AccountDTO> accountDTOs = currentClient.getAccounts().stream()
+                .map(AccountDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(accountDTOs);
+    }
+
+    public List<AccountDTO> getCurrentClientAccounts(String email) {
+        Client currentClient = clientRepository.findByEmail(email);
+
+        if (currentClient == null) {
+            return Collections.emptyList();
+        }
+
+        return currentClient.getAccounts().stream()
+                .map(AccountDTO::new)
+                .collect(Collectors.toList());
     }
 
     private String generateAccountNumber() {
