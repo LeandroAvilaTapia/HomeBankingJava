@@ -2,8 +2,14 @@ package com.mindhub.homebankingAP.controllers;
 
 
 import com.mindhub.homebankingAP.dtos.AccountDTO;
+import com.mindhub.homebankingAP.models.Account;
+import com.mindhub.homebankingAP.models.Client;
 import com.mindhub.homebankingAP.repositories.AccountRepository;
+import com.mindhub.homebankingAP.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +24,8 @@ public class AccountController {
 
     @Autowired
     public AccountRepository accountRepository;
+    @Autowired
+    public ClientRepository clientRepository;
 
     @RequestMapping("/accounts")
     public List<AccountDTO> getAll() {
@@ -25,9 +33,19 @@ public class AccountController {
     }
 
     @RequestMapping("/accounts/{id}")
-    public AccountDTO getTransaction(@PathVariable Long id) {
-        return accountRepository.findById(id).map(AccountDTO::new).orElse(null);
-
+    public ResponseEntity<?> getTransaction(@PathVariable Long id, Authentication authentication) {
+        Client client = clientRepository.findByEmail(authentication.getName());
+        AccountDTO accountDTO = accountRepository.findById(id).map(AccountDTO::new).orElse(null);
+        Account account = accountRepository.findById(id).orElse(null);
+        if (client == null) {
+            return new ResponseEntity<>("Client not found", HttpStatus.FORBIDDEN);
+        }
+        if (accountDTO == null) {
+            return new ResponseEntity<>("Account not found", HttpStatus.FORBIDDEN);
+        }
+        if ((account.getClient().getId()) == client.getId()) {
+            return new ResponseEntity<>(accountDTO, HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>("Transactions not found", HttpStatus.FORBIDDEN);
     }
-
 }

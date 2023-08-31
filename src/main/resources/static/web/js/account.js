@@ -19,7 +19,7 @@ Vue.createApp({
                 })
                 .catch((error) => {
                     // handle error
-                    this.errorMsg = "Error getting data";
+                    this.errorMsg = "Not your account";
                     this.errorToats.show();
                 })
         },
