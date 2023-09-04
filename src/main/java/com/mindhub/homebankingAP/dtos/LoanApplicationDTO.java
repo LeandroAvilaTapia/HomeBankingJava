@@ -5,16 +5,16 @@ public class LoanApplicationDTO {
     private long loanId;
     private double amount;
     private int payments;
-    private String accountToNumber;
+    private String toAccountNumber;
 
     public LoanApplicationDTO() {
     }
 
-    public LoanApplicationDTO(long loanId, double amount, int payments, String accountToNumber) {
+    public LoanApplicationDTO(long loanId, double amount, int payments, String toAccountNumber) {
         this.loanId = loanId;
         this.amount = amount;
         this.payments = payments;
-        this.accountToNumber = accountToNumber;
+        this.toAccountNumber = toAccountNumber;
     }
 
     public Long getLoanId() {
@@ -29,8 +29,8 @@ public class LoanApplicationDTO {
         return payments;
     }
 
-    public String getAccountToNumber() {
-        return accountToNumber;
+    public String getToAccountNumber() {
+        return toAccountNumber;
     }
 
     public void setAmount(Double amount) {
@@ -42,7 +42,7 @@ public class LoanApplicationDTO {
     }
 
     public void setAccountToNumber(String accountToNumber) {
-        this.accountToNumber = accountToNumber;
+        this.toAccountNumber = accountToNumber;
     }
 }
 
