@@ -6,6 +6,7 @@ import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
 import com.mindhub.homebankingAP.repositories.AccountRepository;
 import com.mindhub.homebankingAP.repositories.ClientRepository;
+import com.mindhub.homebankingAP.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,25 +26,26 @@ public class AccountController {
     @Autowired
     public AccountRepository accountRepository;
     @Autowired
+    public AccountService accountService;
+    @Autowired
     public ClientRepository clientRepository;
 
     @RequestMapping("/accounts")
     public List<AccountDTO> getAll() {
-        return accountRepository.findAll().stream().map(AccountDTO::new).collect(toList());
+        return accountService.getAllAccountDTO();//accountRepository.findAll().stream().map(AccountDTO::new).collect(toList());
     }
 
     @RequestMapping("/accounts/{id}")
     public ResponseEntity<?> getTransaction(@PathVariable Long id, Authentication authentication) {
         Client client = clientRepository.findByEmail(authentication.getName());
-        AccountDTO accountDTO = accountRepository.findById(id).map(AccountDTO::new).orElse(null);
-        Account account = accountRepository.findById(id).orElse(null);
+        AccountDTO accountDTO = accountService.getAccountDTOForId(id);
         if (client == null) {
             return new ResponseEntity<>("Client not found", HttpStatus.FORBIDDEN);
         }
         if (accountDTO == null) {
             return new ResponseEntity<>("Account not found", HttpStatus.FORBIDDEN);
         }
-        if ((account.getClient().getId()) == client.getId()) {
+        if ((accountDTO.getClientId()) == client.getId()) {
             return new ResponseEntity<>(accountDTO, HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>("Transactions not found", HttpStatus.FORBIDDEN);
