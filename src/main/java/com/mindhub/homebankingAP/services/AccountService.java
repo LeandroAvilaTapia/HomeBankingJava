@@ -5,7 +5,6 @@ import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AccountService {
     List<AccountDTO> getAllAccountDTO();

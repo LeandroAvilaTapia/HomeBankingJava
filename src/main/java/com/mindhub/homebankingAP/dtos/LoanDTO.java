@@ -4,7 +4,6 @@ import com.mindhub.homebankingAP.models.Loan;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LoanDTO {
     private long id;
