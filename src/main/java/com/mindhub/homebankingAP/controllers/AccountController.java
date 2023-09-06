@@ -2,11 +2,9 @@ package com.mindhub.homebankingAP.controllers;
 
 
 import com.mindhub.homebankingAP.dtos.AccountDTO;
-import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
-import com.mindhub.homebankingAP.repositories.AccountRepository;
-import com.mindhub.homebankingAP.repositories.ClientRepository;
 import com.mindhub.homebankingAP.services.AccountService;
+import com.mindhub.homebankingAP.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("api")
@@ -25,7 +22,7 @@ public class AccountController {
     @Autowired
     public AccountService accountService;
     @Autowired
-    public ClientRepository clientRepository;
+    public ClientService clientService;
 
     @RequestMapping("/accounts")
     public List<AccountDTO> getAll() {
@@ -34,7 +31,7 @@ public class AccountController {
 
     @RequestMapping("/accounts/{id}")
     public ResponseEntity<?> getTransaction(@PathVariable Long id, Authentication authentication) {
-        Client client = clientRepository.findByEmail(authentication.getName());
+        Client client = clientService.getClientFindByEmail(authentication.getName());
         AccountDTO accountDTO = accountService.getAccountDTOForId(id);
         if (client == null) {
             return new ResponseEntity<>("Client not found", HttpStatus.FORBIDDEN);

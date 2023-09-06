@@ -17,4 +17,6 @@ public interface AccountService {
     void saveAccountInRepository(Account account);
 
     Account findByNumber(String number);
+
+    Account accountFindByNumberAndClient(String accountNumber, Client client);
 }

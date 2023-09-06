@@ -2,6 +2,7 @@ package com.mindhub.homebankingAP.services.implement;
 
 import com.mindhub.homebankingAP.dtos.AccountDTO;
 import com.mindhub.homebankingAP.models.Account;
+import com.mindhub.homebankingAP.models.Client;
 import com.mindhub.homebankingAP.repositories.AccountRepository;
 import com.mindhub.homebankingAP.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,10 @@ public class AccountServiceImplement implements AccountService {
     @Override
     public Account findByNumber(String number) {
         return accountRepository.findByNumber(number);
+    }
+
+    @Override
+    public Account accountFindByNumberAndClient(String accountNumber, Client client) {
+        return accountRepository.findByNumberAndClient(accountNumber,client);
     }
 }

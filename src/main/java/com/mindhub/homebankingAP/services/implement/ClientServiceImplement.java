@@ -7,12 +7,13 @@ import com.mindhub.homebankingAP.repositories.ClientRepository;
 import com.mindhub.homebankingAP.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
-
+@Service
 public class ClientServiceImplement implements ClientService {
     @Autowired
     private ClientRepository clientRepository;

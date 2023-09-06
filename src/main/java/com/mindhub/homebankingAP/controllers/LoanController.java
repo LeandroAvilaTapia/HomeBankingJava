@@ -1,11 +1,9 @@
 package com.mindhub.homebankingAP.controllers;
 
-import com.mindhub.homebankingAP.dtos.ClientDTO;
-import com.mindhub.homebankingAP.dtos.ClientLoanDTO;
 import com.mindhub.homebankingAP.dtos.LoanApplicationDTO;
 import com.mindhub.homebankingAP.dtos.LoanDTO;
 import com.mindhub.homebankingAP.models.*;
-import com.mindhub.homebankingAP.repositories.*;
+import com.mindhub.homebankingAP.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,29 +16,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 
 @RestController
 @RequestMapping("api/loans")
 public class LoanController {
     @Autowired
-    private LoanRepository loanRepository;
+    private LoanService loanService;
     @Autowired
-    private ClientLoanRepository clientLoanRepository;
+    private ClientService clientService;
     @Autowired
-    private ClientRepository clientRepository;
+    private AccountService accountService;
     @Autowired
-    private AccountRepository accountRepository;
+    private ClientLoanService clientLoanService;
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionService transactionService;
 
 
     @RequestMapping(method = RequestMethod.GET)
     public List<LoanDTO> getAll() {
-        return loanRepository.findAll().stream().map(LoanDTO::new).collect(toList());
+        return loanService.getAllLoanDTO();
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -48,8 +43,8 @@ public class LoanController {
     public ResponseEntity<Object> applyForLoan(@RequestBody LoanApplicationDTO loanApplicationDTO, Authentication authentication) {
         // Aquí puedes procesar la solicitud de préstamo utilizando los datos del LoanApplicationDTO
         // Por ejemplo, puedes acceder a loanApplicationDTO.getLoanId(), loanApplicationDTO.getAmount(), etc.
-        Loan loan = loanRepository.findById(loanApplicationDTO.getLoanId()).orElse(null);
-        Client clientCurrent = clientRepository.findByEmail(authentication.getName());
+        Loan loan = loanService.loanFindById(loanApplicationDTO.getLoanId()).orElse(null);
+        Client clientCurrent = clientService.getClientFindByEmail(authentication.getName());
         String numerodecuenta = loanApplicationDTO.getToAccountNumber();
         //Verifica si el prestamo existe
         if (loan == null) {
@@ -72,21 +67,24 @@ public class LoanController {
             return new ResponseEntity<>("the requested amount exceeds the maximum loan amount", HttpStatus.FORBIDDEN);
         }
         //Verifica si la cuenta de destino pertenece al cliente autenticado
-        Account destinoAccount = accountRepository.findByNumberAndClient(numerodecuenta, clientCurrent);
+        Account destinoAccount = accountService.accountFindByNumberAndClient(numerodecuenta, clientCurrent);
         if (destinoAccount == null) {
             return new ResponseEntity<>("the destination account does not correspond to the client", HttpStatus.FORBIDDEN);
         }
         //Verifica si la cuenta de destino existe
-        if (accountRepository.findByNumber(loanApplicationDTO.getToAccountNumber()) == null) {
+        if (accountService.findByNumber(loanApplicationDTO.getToAccountNumber()) == null) {
             return new ResponseEntity<>("Destination account not found", HttpStatus.FORBIDDEN);
         }
         //crear una solicitud de préstamo con el monto solicitado sumando el 20% del mismo
-        ClientLoan cloan1 = clientLoanRepository.save(new ClientLoan(clientCurrent, loan, loanApplicationDTO.getAmount() * 1.20, loanApplicationDTO.getPayments()));
+        ClientLoan cloan1 = new ClientLoan(clientCurrent, loan, loanApplicationDTO.getAmount() * 1.20, loanApplicationDTO.getPayments());
+        clientLoanService.saveClientLoanInRepository(cloan1);
         clientCurrent.addLoan(cloan1);
         loan.addClientLoan(cloan1);
 
         //Crear una nueva transaccion
-        Transaction transaction = transactionRepository.save(new Transaction(TransactionType.CREDIT, loanApplicationDTO.getAmount(), loan.getName() + " loan approved", LocalDateTime.now()));
+        Transaction transaction = new Transaction(TransactionType.CREDIT, loanApplicationDTO.getAmount(), loan.getName() + " loan approved", LocalDateTime.now());
+        transactionService.saveTransactionInRepository(transaction);
+
         destinoAccount.setBalance(destinoAccount.getBalance() + loanApplicationDTO.getAmount());
         destinoAccount.addTransactions(transaction);
         transaction.setTransactions(destinoAccount);

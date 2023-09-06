@@ -71,5 +71,10 @@ public class TransactionServiceImplement implements TransactionService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Transaction completed successfully");
     }
+
+    @Override
+    public void saveTransactionInRepository(Transaction transaction) {
+        transactionRepository.save(transaction);
+    }
 }
 

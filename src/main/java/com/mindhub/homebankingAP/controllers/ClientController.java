@@ -4,8 +4,6 @@ import com.mindhub.homebankingAP.dtos.AccountDTO;
 import com.mindhub.homebankingAP.dtos.ClientDTO;
 import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
-import com.mindhub.homebankingAP.repositories.ClientRepository;
-import com.mindhub.homebankingAP.repositories.AccountRepository;
 import com.mindhub.homebankingAP.services.AccountService;
 import com.mindhub.homebankingAP.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("api/clients")
