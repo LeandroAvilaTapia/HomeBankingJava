@@ -31,4 +31,14 @@ public class AccountServiceImplement implements AccountService {
     public AccountDTO getAccountDTOForId(long id) {
         return accountRepository.findById(id).map(AccountDTO::new).orElse(null);
     }
+
+    @Override
+    public void saveAccountInRepository(Account account) {
+        accountRepository.save(account);
+    }
+
+    @Override
+    public Account findByNumber(String number) {
+        return accountRepository.findByNumber(number);
+    }
 }

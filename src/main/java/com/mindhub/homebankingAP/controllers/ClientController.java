@@ -6,6 +6,8 @@ import com.mindhub.homebankingAP.models.Account;
 import com.mindhub.homebankingAP.models.Client;
 import com.mindhub.homebankingAP.repositories.ClientRepository;
 import com.mindhub.homebankingAP.repositories.AccountRepository;
+import com.mindhub.homebankingAP.services.AccountService;
+import com.mindhub.homebankingAP.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,20 +27,20 @@ import static java.util.stream.Collectors.toList;
 public class ClientController {
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
+    @Autowired
+    private AccountService accountService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private AccountRepository accountRepository;
 
     @RequestMapping(method = RequestMethod.GET)
     public List<ClientDTO> getAll() {
-        return clientRepository.findAll().stream().map(ClientDTO::new).collect(toList());
+        return clientService.getAllClientDTO();
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.GET)
     public ClientDTO getClient(@PathVariable Long id) {
-        return clientRepository.findById(id).map(ClientDTO::new).orElse(null);
+        return clientService.getClientDTO(id);
     }
 
     @RequestMapping(path = "", method = RequestMethod.POST)
@@ -53,23 +55,23 @@ public class ClientController {
             return new ResponseEntity<>("Missing password", HttpStatus.FORBIDDEN);
         }
 
-        if (clientRepository.findByEmail(email) != null) {
+        if (clientService.getClientFindByEmail(email) != null) {
 
             return new ResponseEntity<>("Email already in use", HttpStatus.FORBIDDEN);
 
         }
 
-        Client currentClient = clientRepository.save(new Client(firstName, lastName, email, passwordEncoder.encode(password)));
-
+        Client currentClient = new Client(firstName, lastName, email, passwordEncoder.encode(password));
+        clientService.saveClientInRepository(currentClient);
         //Asumo que al crear un nuevo cliente, este no tiene cuentas asociadas
-        Account newAccount = accountRepository.save(new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0));
-
+        Account newAccount = new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0);
+        accountService.saveAccountInRepository(newAccount);
         // Associate the account with the client
         currentClient.addAccounts(newAccount);
         newAccount.setAccounts(currentClient);
 
-        clientRepository.save(currentClient);
-        accountRepository.save(newAccount);
+        clientService.saveClientInRepository(currentClient);
+        accountService.saveAccountInRepository(newAccount);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
 
@@ -77,7 +79,7 @@ public class ClientController {
 
     @RequestMapping(path = "/current", method = RequestMethod.GET)
     public ClientDTO getCurrentClient(Authentication authentication) {
-        return new ClientDTO(clientRepository.findByEmail(authentication.getName()));
+        return new ClientDTO(clientService.getClientFindByEmail(authentication.getName()));
     }
 
     @RequestMapping(path = "/current/accounts", method = RequestMethod.POST)
@@ -90,7 +92,7 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client not found");
         }
 
-        Client currentClient = clientRepository.findByEmail(currentClientDTO.getEmail());
+        Client currentClient = clientService.getClientFindByEmail(currentClientDTO.getEmail());
 
         // Chequeo si el cliente ya tiene 3 cuentas creadas
         if (currentClient.getAccounts().size() >= 3) {
@@ -98,23 +100,23 @@ public class ClientController {
         }
 
         // Creo una cuenta nueva
-        Account newAccount = accountRepository.save(new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0));
-
+        Account newAccount = new Account(generateUniqueAccountNumber(), LocalDate.now(), 0.0);
+        accountService.saveAccountInRepository(newAccount);
         //Asocia la cuenta con el cliente
         currentClient.addAccounts(newAccount);
         //Asocia el cliente con la cuenta
         newAccount.setAccounts(currentClient);
 
         // Guardar el cliente y la cuenta en el repositorio
-        clientRepository.save(currentClient);
-        accountRepository.save(newAccount);
+        clientService.saveClientInRepository(currentClient);
+        accountService.saveAccountInRepository(newAccount);
         return ResponseEntity.status(HttpStatus.CREATED).body("Account created successfully");
     }
 
     @RequestMapping(path = "/current/accounts", method = RequestMethod.GET)
     public ResponseEntity<List<AccountDTO>> getCurrentClientAccounts(Authentication authentication) {
         String currentClientEmail = authentication.getName();
-        Client currentClient = clientRepository.findByEmail(currentClientEmail);
+        Client currentClient = clientService.getClientFindByEmail(currentClientEmail);
 
         if (currentClient == null) {
             return ResponseEntity.notFound().build();
@@ -128,7 +130,7 @@ public class ClientController {
     }
 
     public List<AccountDTO> getCurrentClientAccounts(String email) {
-        Client currentClient = clientRepository.findByEmail(email);
+        Client currentClient = clientService.getClientFindByEmail(email);
 
         if (currentClient == null) {
             return Collections.emptyList();
@@ -148,7 +150,7 @@ public class ClientController {
     private boolean isAccountNumberUnique(String accountNumber) {
         //verifica si la cuenta *accountNumber esta repetida en la tabla Account.
         //Retorna: si es un numero no esta repetido devolverá thue, si está repetido devolverá false
-        return accountRepository.findByNumber(accountNumber) == null;
+        return accountService.findByNumber(accountNumber) == null;
     }
 
     private String generateUniqueAccountNumber() {

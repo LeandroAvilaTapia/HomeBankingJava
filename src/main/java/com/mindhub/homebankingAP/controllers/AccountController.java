@@ -22,9 +22,6 @@ import static java.util.stream.Collectors.toList;
 @RestController
 @RequestMapping("api")
 public class AccountController {
-
-    @Autowired
-    public AccountRepository accountRepository;
     @Autowired
     public AccountService accountService;
     @Autowired
