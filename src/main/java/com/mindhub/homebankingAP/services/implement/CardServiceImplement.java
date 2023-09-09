@@ -34,4 +34,9 @@ public class CardServiceImplement implements CardService {
     public Card getCardFindByNumber(String number) {
         return cardRepository.findByNumber(number);
     }
+
+    @Override
+    public void deleteCardInRepository(Card card) {
+        cardRepository.delete(card);
+    }
 }

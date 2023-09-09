@@ -10,4 +10,5 @@ public interface CardService {
     List<CardDTO> getCurrentClientCards(String email);
     void saveCardInRepository(Card card);
     Card getCardFindByNumber(String number);
+    void deleteCardInRepository(Card card);
 }

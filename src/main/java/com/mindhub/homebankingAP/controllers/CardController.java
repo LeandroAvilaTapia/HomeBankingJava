@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("api")
@@ -70,6 +72,32 @@ public class CardController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Card created successfully");
     }
 
+    @RequestMapping(path = "/clients/current/cards", method = RequestMethod.DELETE)
+    public ResponseEntity<Object> DeleteCard(@RequestParam String cardType, @RequestParam String cardColor, Authentication authentication) {
+
+        Client currentClient = clientService.getClientFindByEmail(authentication.getName());
+
+
+        //revisar si los datos del paramentros son nulos o incorrectos
+        if (cardType.isEmpty()) {
+            return new ResponseEntity<>("Missing data: card type is empty", HttpStatus.FORBIDDEN);
+        }
+        if (cardColor.isEmpty()) {
+            return new ResponseEntity<>("Missing data: card color is empty", HttpStatus.FORBIDDEN);
+        }
+
+        if (currentClient == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client not found");
+        }
+        Card deleteCard = returnCardForClientColorAndType(currentClient, CardColor.valueOf(cardColor), CardType.valueOf(cardType));
+        if(deleteCard==null){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Card not found");
+        }
+        cardService.deleteCardInRepository(deleteCard);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Card delete successfully");
+    }
+
     private boolean canClientCreateCard(Client client, CardType type, CardColor color) {
         long cardCount = client.getCards().stream()
                 .filter(card -> card.getType() == type && card.getColor() == color)
@@ -100,6 +128,16 @@ public class CardController {
     private boolean hasDuplicateCard(Client client, CardColor cardColor, CardType cardType) {
         return client.getCards().stream()
                 .anyMatch(card -> card.getColor() == cardColor && card.getType() == cardType);
+    }
+
+    private Card returnCardForClientColorAndType(Client client, CardColor cardColor, CardType cardType) {
+       List <Card> steamCard = client.getCards().stream().collect(Collectors.toList());
+        for (Card card : steamCard) {
+            if(card.getColor() == cardColor && card.getType() == cardType){
+                return card;
+            }
+        }
+        return null;
     }
 
 

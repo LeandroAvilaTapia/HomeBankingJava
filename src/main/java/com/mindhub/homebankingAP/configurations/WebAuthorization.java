@@ -36,7 +36,7 @@ class WebAuthorization {
                 //.antMatchers("/web/**", "/api/**").hasAuthority("CLIENT")
 
                 // Permitir acceso a la información del cliente autenticado
-                .antMatchers("/web/**","/api/accounts/**","/api/clients/current/**","/api/clients/current/accounts","/api/loans", "/h2-console/**").hasAuthority("CLIENT")
+                .antMatchers("/web/**","/api/accounts/**","/api/clients/current/**","/api/clients/current/accounts", "/api/clients/current/cards","/api/loans", "/h2-console/**").hasAuthority("CLIENT")
 
                 // Restringir acceso a crear cuentas y tarjetas para clientes (CLIENT)
                 .antMatchers(HttpMethod.POST, "/api/clients/current/accounts", "/api/clients/current/cards", "/api/transactions","/api/loans").hasAuthority("CLIENT")
