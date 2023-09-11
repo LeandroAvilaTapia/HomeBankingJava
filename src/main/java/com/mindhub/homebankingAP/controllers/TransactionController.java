@@ -57,10 +57,10 @@ public class TransactionController {
         // Obtener cuentas de origen, destino y el cliente autenticado
         Account sourceAccount = accountService.findByNumber(fromAccountNumber);
         Account targetAccount = accountService.findByNumber(toAccountNumber);
-        Client clientcurrent= clientService.getClientFindByEmail(authentication.getName());
+        Client clientcurrent = clientService.getClientFindByEmail(authentication.getName());
 
         // Verificar silacuentadeorigenno pertenece al cliente autenticado
-        if (accountService.accountFindByNumberAndClient(sourceAccount.getNumber(),clientcurrent) == null) {
+        if (accountService.accountFindByNumberAndClient(sourceAccount.getNumber(), clientcurrent) == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The source account does not belong to the authenticated client.");
         }
         // Verificar si las cuentas existen
@@ -74,7 +74,7 @@ public class TransactionController {
         }
 
         // Crear transacciones y actualizar balances
-        Transaction debitTransaction = new Transaction(TransactionType.DEBIT, amount, description, LocalDateTime.now());
+        Transaction debitTransaction = new Transaction(TransactionType.DEBIT, -1 * amount, description, LocalDateTime.now());
         sourceAccount.addTransactions(debitTransaction);
         debitTransaction.setTransactions(sourceAccount);
 
