@@ -30,17 +30,17 @@ public class ClientController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping(path = "")
     public List<ClientDTO> getAll() {
         return clientService.getAllClientDTO();
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+    @GetMapping(path = "/{id}")
     public ClientDTO getClient(@PathVariable Long id) {
         return clientService.getClientDTO(id);
     }
 
-    @RequestMapping(path = "", method = RequestMethod.POST)
+    @PostMapping(path = "")
     public ResponseEntity<Object> register(@RequestParam String firstName, @RequestParam String lastName, @RequestParam String email, @RequestParam String password) {
         if (firstName.isEmpty()) {
             return new ResponseEntity<>("Missing firstname", HttpStatus.FORBIDDEN);
@@ -74,12 +74,12 @@ public class ClientController {
 
     }
 
-    @RequestMapping(path = "/current", method = RequestMethod.GET)
+    @GetMapping(path = "/current")
     public ClientDTO getCurrentClient(Authentication authentication) {
         return new ClientDTO(clientService.getClientFindByEmail(authentication.getName()));
     }
 
-    @RequestMapping(path = "/current/accounts", method = RequestMethod.POST)
+    @PostMapping(path = "/current/accounts")
     public ResponseEntity<String> createAccountForCurrentClient(Authentication authentication) {
 
         // Get the current client
@@ -110,7 +110,7 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Account created successfully");
     }
 
-    @RequestMapping(path = "/current/accounts", method = RequestMethod.GET)
+    @GetMapping(path = "/current/accounts")
     public ResponseEntity<List<AccountDTO>> getCurrentClientAccounts(Authentication authentication) {
         String currentClientEmail = authentication.getName();
         Client currentClient = clientService.getClientFindByEmail(currentClientEmail);

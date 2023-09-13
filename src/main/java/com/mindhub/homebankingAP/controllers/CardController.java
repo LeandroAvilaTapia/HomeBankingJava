@@ -24,18 +24,18 @@ public class CardController {
     @Autowired
     private ClientService clientService;
 
-    @RequestMapping("/cards")
+    @GetMapping("/cards")
     public List<CardDTO> getAllCards() {
         return cardService.getAllCards();
     }
 
-    @RequestMapping("/clients/current/cards")
+    @GetMapping("/clients/current/cards")
     public List<CardDTO> getCurrentClientCards(Authentication authentication) {
         return cardService.getCurrentClientCards(authentication.getName());
         //cardRepository.findByClient_email(authentication.getName()).stream().map(CardDTO::new).collect(Collectors.toList());
     }
 
-    @RequestMapping(path = "/clients/current/cards", method = RequestMethod.POST)
+    @PostMapping(path = "/clients/current/cards")
     public ResponseEntity<Object> createCard(@RequestParam String cardType, @RequestParam String cardColor, Authentication authentication) {
 
         Client currentClient = clientService.getClientFindByEmail(authentication.getName());
