@@ -5,6 +5,7 @@ import com.mindhub.homebankingAP.models.Card;
 import com.mindhub.homebankingAP.repositories.CardRepository;
 import com.mindhub.homebankingAP.services.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,10 @@ public class CardServiceImplement implements CardService {
     public List<CardDTO> getCurrentClientCards(String email) {
         return cardRepository.findByClient_email(email).stream().map(CardDTO::new).collect(Collectors.toList());
     }
+    @Override
+    public List<CardDTO> getCurrentClientCardsEnabled(String email, boolean enabled) {
+        return cardRepository.findByClient_emailAndEnabled(email,enabled).stream().map(CardDTO::new).collect(Collectors.toList());
+    }
 
     @Override
     public void saveCardInRepository(Card card) {
@@ -39,4 +44,11 @@ public class CardServiceImplement implements CardService {
     public void deleteCardInRepository(Card card) {
         cardRepository.delete(card);
     }
+
+    @Override
+    @Query("SELECT c FROM Card c WHERE c.enabled = true")
+    public List<CardDTO> getAllEnabledCards() {
+        return cardRepository.findAll().stream().map(CardDTO::new).collect(Collectors.toList());
+    }
+
 }

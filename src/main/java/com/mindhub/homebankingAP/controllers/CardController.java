@@ -29,12 +29,13 @@ public class CardController {
 
     @GetMapping("/cards")
     public List<CardDTO> getAllCards() {
-        return cardService.getAllCards();
+        return cardService.getAllEnabledCards();
     }
 
     @GetMapping("/clients/current/cards")
     public List<CardDTO> getCurrentClientCards(Authentication authentication) {
-        return cardService.getCurrentClientCards(authentication.getName());
+        //return cardService.getCurrentClientCards(authentication.getName());
+        return cardService.getCurrentClientCardsEnabled(authentication.getName(),true);
         //cardRepository.findByClient_email(authentication.getName()).stream().map(CardDTO::new).collect(Collectors.toList());
     }
 
@@ -64,7 +65,7 @@ public class CardController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Client already has 3 cards of this type");
         }
         String cardHolder = currentClient.getFirstName() + " " + currentClient.getLastName();
-        Card newCard = new Card(cardHolder, CardType.valueOf(cardType), CardColor.valueOf(cardColor), generateUniqueCardNumber(), CardUtils.generateRandomCVV(), LocalDate.now().plusYears(5), LocalDate.now());
+        Card newCard = new Card(cardHolder, CardType.valueOf(cardType), CardColor.valueOf(cardColor), generateUniqueCardNumber(), CardUtils.generateRandomCVV(), LocalDate.now().plusYears(5), LocalDate.now(),true);
         //agrega la tarjeta al cliente
         currentClient.addCards(newCard);
         //guarda la tarjeta en la tabla Card
@@ -94,7 +95,8 @@ public class CardController {
         if(deleteCard==null){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Card not found");
         }
-        cardService.deleteCardInRepository(deleteCard);
+        deleteCard.setEnabled(false);
+        cardService.saveCardInRepository(deleteCard);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Card delete successfully");
     }

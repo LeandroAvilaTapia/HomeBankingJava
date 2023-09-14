@@ -10,5 +10,6 @@ import java.util.List;
 public interface CardRepository extends JpaRepository<Card,Long> {
     Card findByNumber(String number);
     List<Card> findByClient_email(String email);
+    List<Card> findByClient_emailAndEnabled(String email,boolean enabled);
 
 }

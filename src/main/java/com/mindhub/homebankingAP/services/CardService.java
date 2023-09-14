@@ -11,4 +11,7 @@ public interface CardService {
     void saveCardInRepository(Card card);
     Card getCardFindByNumber(String number);
     void deleteCardInRepository(Card card);
+    List<CardDTO> getAllEnabledCards();
+
+    List<CardDTO> getCurrentClientCardsEnabled(String email,boolean enabled);
 }

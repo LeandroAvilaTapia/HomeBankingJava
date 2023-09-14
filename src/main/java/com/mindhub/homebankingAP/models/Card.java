@@ -20,6 +20,7 @@ public class Card {
     private short cvv;
     private LocalDate thruDate;
     private LocalDate fromDate;
+    private boolean enabled;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cards_id")
@@ -28,7 +29,7 @@ public class Card {
     public Card() {
     }
 
-    public Card(String cardHolder, CardType type, CardColor color, String number, short cvv, LocalDate thruDate, LocalDate fromDate) {
+    public Card(String cardHolder, CardType type, CardColor color, String number, short cvv, LocalDate thruDate, LocalDate fromDate, boolean enabled) {
         this.cardHolder = cardHolder;
         this.type = type;
         this.color = color;
@@ -36,6 +37,7 @@ public class Card {
         this.cvv = cvv;
         this.thruDate = thruDate;
         this.fromDate = fromDate;
+        this.enabled = enabled;
     }
 
     public long getId() {
@@ -57,6 +59,7 @@ public class Card {
     public void setType(CardType type) {
         this.type = type;
     }
+
 
     public CardColor getColor() {
         return color;
@@ -96,6 +99,14 @@ public class Card {
 
     public void setFromDate(LocalDate fromDate) {
         this.fromDate = fromDate;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @JsonIgnore
