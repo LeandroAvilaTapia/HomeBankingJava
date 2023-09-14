@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
