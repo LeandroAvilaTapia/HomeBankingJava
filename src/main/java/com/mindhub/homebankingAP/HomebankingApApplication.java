@@ -9,23 +9,27 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootApplication
-public class HomebankingApApplication {
+public class HomebankingApApplication  {
+
+    //@Autowired
+    //private PasswordEncoder passwordEncoder;
 
     public static void main(String[] args) {
-        SpringApplication.run(HomebankingApApplication.class, args);
+
+        SpringApplication.run(HomebankingApApplication.class,args);
     }
-
-    @Autowired
-    private PasswordEncoder passwordEnconder;
-
+}
+    /*
     @Bean
     public CommandLineRunner initData(ClientRepository clientRepository, AccountRepository accountRepository, TransactionRepository transactionRepository, LoanRepository loanRepository, ClientLoanRepository clientLoanRepository, CardRepository cardRepository) {
         return (args -> {
+
             Client client1 = clientRepository.save(new Client("Melba", "Morel", "melba@mindhub.com", passwordEnconder.encode("melba")));
             Client client2 = clientRepository.save(new Client("Leandro", "Avila", "leandroavila@mindhub.com",passwordEnconder.encode("leandro")));
             Client client3 = clientRepository.save(new Client("Leandro", "Tapia", "admin@mindhub.com",passwordEnconder.encode("admin")));
@@ -89,4 +93,4 @@ public class HomebankingApApplication {
 
         });
     }
-}
+}           */
